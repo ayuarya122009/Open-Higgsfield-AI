@@ -4,7 +4,45 @@ import { BackendModal } from './components/BackendModal.js';
 
 const app = document.querySelector('#app');
 let contentArea;
+let pageSlot;
+let dockSlot;
+let dockBody;
 let booted = false;
+
+// --- Assistant open/dock/close -------------------------------------------
+// The Assistant is its own full page. Pressing Library while it is open
+// docks it into a side panel (same live element, chat intact) with the
+// Library as the main area; pressing Library again leaves both as they are
+// (the dock has its own Expand and Close controls). Opening any other tab
+// closes the Assistant. Header listens for 'assistant-state' to light the
+// avatar button.
+let assistantEl = null;
+let assistantState = 'closed'; // 'closed' | 'full' | 'docked'
+
+function setAssistantState(state) {
+  assistantState = state;
+  window.dispatchEvent(new CustomEvent('assistant-state', { detail: { state } }));
+}
+
+function showDock(show) {
+  dockSlot.classList.toggle('hidden', !show);
+  dockSlot.classList.toggle('flex', show);
+}
+
+function closeAssistant() {
+  if (assistantEl) { assistantEl.remove(); assistantEl = null; }
+  if (dockSlot) showDock(false);
+  if (assistantState !== 'closed') setAssistantState('closed');
+}
+
+function dockAssistant() {
+  if (!assistantEl) return;
+  assistantEl.remove(); // detaches the live element; its chat state survives
+  assistantEl.dataset.docked = '1';
+  dockBody.appendChild(assistantEl);
+  showDock(true);
+  setAssistantState('docked');
+}
 
 // Router. Pages load on demand; a navigation token makes sure only the most
 // recent page is shown even if an older page's code finishes loading later.
@@ -21,22 +59,71 @@ const PAGES = {
   'video-create': videoHub('create'),
   'image-create': imageHub('create'),
   characters: () => import('./components/CharactersPage.js').then(m => m.CharactersPage),
+  assistant: () => import('./components/AssistantStudio.js').then(m => m.AssistantStudio),
   library: () => import('./components/LibraryPage.js').then(m => m.LibraryPage),
 };
 let navToken = 0;
 
-function navigate(page) {
-  if (!contentArea) return;
+function mountPage(page) {
+  if (!pageSlot) return;
   const token = ++navToken;
-  contentArea.innerHTML = '';
+  pageSlot.innerHTML = '';
 
   const load = PAGES[page];
   if (!load) return;
   load().then((Page) => {
     if (token !== navToken) return; // a newer navigation happened meanwhile
-    contentArea.innerHTML = '';
-    contentArea.appendChild(Page());
+    pageSlot.innerHTML = '';
+    pageSlot.appendChild(Page());
   });
+}
+
+function openAssistant() {
+  if (!pageSlot) return;
+  if (assistantState === 'full') return;
+  if (assistantState === 'docked' && assistantEl) {
+    // Expand the live chat back to its full page — same element, so the
+    // conversation and any on-screen results come along untouched.
+    navToken++;
+    assistantEl.remove();
+    delete assistantEl.dataset.docked;
+    showDock(false);
+    pageSlot.innerHTML = '';
+    pageSlot.appendChild(assistantEl);
+    setAssistantState('full');
+    return;
+  }
+  const token = ++navToken;
+  PAGES.assistant().then((Page) => {
+    if (token !== navToken || assistantState !== 'closed') return; // superseded
+    assistantEl = Page();
+    pageSlot.innerHTML = '';
+    pageSlot.appendChild(assistantEl);
+    setAssistantState('full');
+  });
+}
+
+function navigate(page) {
+  if (!contentArea) return;
+
+  if (page === 'assistant') { openAssistant(); return; }
+
+  if (page === 'library' && assistantState === 'full') {
+    // Library with the Assistant open: dock the chat to the side instead of
+    // closing it, and show the Library as the main area.
+    dockAssistant();
+    mountPage('library');
+    return;
+  }
+  if (page === 'library' && assistantState === 'docked') {
+    // Already docked beside the Library — leave both exactly as they are.
+    // (Undock with the dock's Expand button, close with its ✕.)
+    return;
+  }
+
+  // Any other tab (and Library when the Assistant is closed) closes it.
+  closeAssistant();
+  mountPage(page);
 }
 
 // Event Listener for Navigation
@@ -95,8 +182,41 @@ function bootApp() {
 
   contentArea = document.createElement('main');
   contentArea.id = 'content-area';
-  contentArea.className = 'flex-1 relative w-full overflow-hidden flex flex-col bg-app-bg';
+  contentArea.className = 'flex-1 relative w-full overflow-hidden flex bg-app-bg';
   app.appendChild(contentArea);
+
+  // Pages mount in the slot; the Assistant docks into the side slot.
+  pageSlot = document.createElement('div');
+  pageSlot.id = 'page-slot';
+  pageSlot.className = 'flex-1 relative min-w-0 overflow-hidden flex flex-col bg-app-bg';
+  contentArea.appendChild(pageSlot);
+
+  dockSlot = document.createElement('aside');
+  dockSlot.id = 'assistant-dock';
+  dockSlot.className = 'hidden flex-col w-[380px] max-w-[88vw] shrink-0 border-l border-white/10 bg-app-bg z-40';
+  const dockHeader = document.createElement('div');
+  dockHeader.className = 'h-11 shrink-0 flex items-center justify-between px-3 border-b border-white/10 bg-black/40';
+  dockHeader.innerHTML = '<span class="text-[11px] font-black uppercase tracking-widest text-white">MATAI Assistant</span>';
+  const dockBtns = document.createElement('div');
+  dockBtns.className = 'flex items-center gap-1';
+  const expandBtn = document.createElement('button');
+  expandBtn.type = 'button';
+  expandBtn.title = 'Expand the Assistant to a full page';
+  expandBtn.className = 'p-1.5 text-secondary hover:text-white transition-colors';
+  expandBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>';
+  expandBtn.onclick = () => openAssistant();
+  const dockCloseBtn = document.createElement('button');
+  dockCloseBtn.type = 'button';
+  dockCloseBtn.title = 'Close the Assistant';
+  dockCloseBtn.className = 'p-1.5 text-secondary hover:text-white transition-colors';
+  dockCloseBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>';
+  dockCloseBtn.onclick = () => closeAssistant();
+  dockBtns.append(expandBtn, dockCloseBtn);
+  dockHeader.appendChild(dockBtns);
+  dockBody = document.createElement('div');
+  dockBody.className = 'flex-1 relative overflow-hidden flex flex-col min-h-0';
+  dockSlot.append(dockHeader, dockBody);
+  contentArea.appendChild(dockSlot);
 
   // Initial Route
   navigate('library');

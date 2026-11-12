@@ -18,6 +18,13 @@ main {
   display: flex;
 }
 
+/* Assistant docked beside the Library (main.js sets data-docked on the
+   chat root): shrink to a side chat — drop the hero and starter chips. */
+[data-docked="1"] .assistant-hero,
+[data-docked="1"] .assistant-starters {
+  display: none;
+}
+
 /* Utilities */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
