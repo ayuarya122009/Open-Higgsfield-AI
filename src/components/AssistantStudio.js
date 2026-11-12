@@ -28,9 +28,19 @@ export function AssistantStudio() {
 
     // --- Header ---
     const hero = document.createElement('div');
-    hero.className = 'assistant-hero flex flex-col items-center mb-6 animate-fade-in-up text-center';
+    hero.className = 'assistant-hero flex flex-col items-center mb-10 md:mb-20 animate-fade-in-up transition-all duration-700 text-center';
     hero.innerHTML = `
-        <h1 class="text-2xl sm:text-4xl font-black text-white tracking-widest uppercase mb-2">Assistant</h1>
+        <div class="mb-10 relative group">
+            <div class="absolute inset-0 bg-primary/20 blur-[100px] rounded-full opacity-40 group-hover:opacity-70 transition-opacity duration-1000"></div>
+            <div class="relative w-24 h-24 md:w-32 md:h-32 bg-primary/5 rounded-3xl flex items-center justify-center border border-white/5 overflow-hidden">
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="currentColor" class="text-primary opacity-20 absolute -right-4 -bottom-4"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8L12 2z"/></svg>
+                <div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 shadow-glow relative z-10">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" class="text-primary"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8L12 2z"/><path d="M18.5 14.5l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9.9-2.6z"/></svg>
+                </div>
+                <div class="absolute top-4 right-4 text-primary animate-pulse">✨</div>
+            </div>
+        </div>
+        <h1 class="text-2xl sm:text-4xl md:text-7xl font-black text-white tracking-widest uppercase mb-4 selection:bg-primary selection:text-black text-center px-4">Assistant</h1>
         <p class="text-secondary text-sm font-medium tracking-wide opacity-60 max-w-xl">Tell me what you want to make. I'll pick the model, set it up, rewrite your prompt, and generate it for you.</p>
         <span id="agent-mode" class="mt-3 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border border-white/10 text-secondary">AI planner</span>
     `;
@@ -45,11 +55,17 @@ export function AssistantStudio() {
 
     function addBubble(role, text) {
         const row = document.createElement('div');
-        row.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in-up`;
+        row.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start items-end gap-2'} animate-fade-in-up`;
+        if (role === 'assistant') {
+            const avatar = document.createElement('span');
+            avatar.className = 'w-7 h-7 rounded-full bg-primary/15 border border-primary/40 flex items-center justify-center text-primary shrink-0';
+            avatar.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8L12 2z"/><path d="M18.5 14.5l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9.9-2.6z"/></svg>';
+            row.appendChild(avatar);
+        }
         const bubble = document.createElement('div');
         bubble.className = role === 'user'
             ? 'max-w-[85%] bg-primary text-black font-medium text-sm leading-relaxed px-4 py-3 rounded-2xl rounded-br-md whitespace-pre-wrap'
-            : 'max-w-[85%] bg-[#111]/90 border border-white/10 text-white/90 text-sm leading-relaxed px-4 py-3 rounded-2xl rounded-bl-md whitespace-pre-wrap';
+            : 'max-w-[85%] bg-card-bg border border-white/10 text-white/90 text-sm leading-relaxed px-4 py-3 rounded-2xl rounded-bl-md whitespace-pre-wrap';
         bubble.textContent = text;
         row.appendChild(bubble);
         thread.appendChild(row);
@@ -68,7 +84,7 @@ export function AssistantStudio() {
     // In-chat placeholder while a generation runs in the background queue.
     function addGenerating(plan) {
         const row = document.createElement('div');
-        row.className = 'flex items-center gap-3 bg-[#111]/90 border border-white/10 rounded-2xl px-4 py-3 animate-fade-in-up';
+        row.className = 'flex items-center gap-3 bg-card-bg border border-white/10 rounded-2xl px-4 py-3 animate-fade-in-up';
         row.innerHTML = `<span class="w-5 h-5 shrink-0 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>
             <span class="text-xs text-white/80 leading-relaxed">Generating your ${esc(plan.kind)} with <b>${esc(plan.modelName || plan.model || '')}</b> — it keeps running in the background and lands in your Library. Keep chatting, or open the Library and I'll dock to the side.</span>`;
         thread.appendChild(row);
@@ -80,7 +96,7 @@ export function AssistantStudio() {
     function addPlanCard(plan) {
         const model = modelById(plan.model);
         const card = document.createElement('div');
-        card.className = 'bg-[#111]/90 border border-primary/30 rounded-2xl p-4 md:p-5 flex flex-col gap-3 animate-fade-in-up shadow-3xl';
+        card.className = 'bg-card-bg border border-primary/30 rounded-2xl p-4 md:p-5 flex flex-col gap-3 animate-fade-in-up shadow-3xl';
 
         const title = document.createElement('div');
         title.innerHTML = `<div class="text-[10px] font-bold uppercase tracking-widest text-primary">Plan — ready when you are</div>
@@ -104,7 +120,7 @@ export function AssistantStudio() {
             wrap.className = 'flex items-center gap-2 bg-black/40 border border-white/10 rounded-xl px-3 py-2';
             wrap.innerHTML = `<span class="text-[10px] font-bold uppercase tracking-widest text-secondary">${esc(label)}</span>`;
             const sel = document.createElement('select');
-            sel.className = 'bg-transparent text-sm font-bold text-white outline-none [&>option]:bg-[#111]';
+            sel.className = 'bg-transparent text-sm font-bold text-white outline-none [&>option]:bg-[#141414]';
             (values || []).forEach(v => {
                 const opt = document.createElement('option');
                 opt.value = v; opt.textContent = label === 'Duration' ? `${v}s` : v;
@@ -157,7 +173,7 @@ export function AssistantStudio() {
         actions.className = 'flex items-center gap-3 pt-1';
         const goBtn = document.createElement('button');
         goBtn.type = 'button';
-        goBtn.className = 'px-6 py-2.5 bg-primary text-black font-black text-sm rounded-xl hover:shadow-glow hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:hover:scale-100';
+        goBtn.className = 'px-6 py-2.5 bg-primary text-black font-black text-sm uppercase tracking-wide rounded-xl hover:shadow-glow hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:hover:scale-100';
         goBtn.textContent = 'Generate ✨';
         const dismissBtn = document.createElement('button');
         dismissBtn.type = 'button';
@@ -229,7 +245,7 @@ export function AssistantStudio() {
 
     function addResult(plan, url) {
         const wrap = document.createElement('div');
-        wrap.className = 'bg-[#111]/90 border border-white/10 rounded-2xl p-3 flex flex-col gap-3 animate-fade-in-up';
+        wrap.className = 'bg-card-bg border border-white/10 rounded-2xl p-3 flex flex-col gap-3 animate-fade-in-up';
         const media = plan.kind === 'video'
             ? Object.assign(document.createElement('video'), { src: url, controls: true, playsInline: true, className: 'w-full rounded-xl max-h-[420px] bg-black' })
             : Object.assign(document.createElement('img'), { src: url, alt: plan.prompt, className: 'w-full rounded-xl max-h-[420px] object-contain bg-black' });
@@ -253,14 +269,14 @@ export function AssistantStudio() {
     const bar = document.createElement('div');
     bar.className = 'w-full max-w-3xl sticky bottom-0 pt-3 pb-1';
     const barInner = document.createElement('div');
-    barInner.className = 'bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-[1.5rem] p-3 flex items-end gap-3 shadow-3xl';
+    barInner.className = 'bg-panel-bg/90 backdrop-blur-xl border border-white/10 rounded-[1.5rem] p-3 flex items-end gap-3 shadow-3xl';
     const input = document.createElement('textarea');
     input.className = 'flex-1 bg-transparent text-white text-sm leading-relaxed outline-none resize-none max-h-32 placeholder:text-secondary/60 px-2 py-2';
     input.placeholder = 'Describe what you want to make…';
     input.rows = 1;
     const sendBtn = document.createElement('button');
     sendBtn.type = 'button';
-    sendBtn.className = 'px-5 py-2.5 bg-primary text-black font-black text-sm rounded-xl hover:shadow-glow hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:hover:scale-100 shrink-0';
+    sendBtn.className = 'px-5 py-2.5 bg-primary text-black font-black text-sm uppercase tracking-wide rounded-xl hover:shadow-glow hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:hover:scale-100 shrink-0';
     sendBtn.textContent = 'Send';
     barInner.append(input, sendBtn);
     bar.appendChild(barInner);
