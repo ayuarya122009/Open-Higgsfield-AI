@@ -22,11 +22,11 @@ const MODEL_SPECS = {
     defaultResolution: '720p',
     audioField: 'generate_audio',
   },
-  'bytedance/seedance-1.5-pro': {
-    label: 'Seedance 1.5 Pro',
-    imageField: 'input_urls',
-    aspects: ['1:1', '4:3', '3:4', '16:9', '9:16', '21:9'],
-    resolutions: ['480p', '720p', '1080p'],
+  'bytedance/seedance-2-mini': {
+    label: 'Seedance 2.0 Mini',
+    imageField: 'reference_image_urls',
+    aspects: ['1:1', '4:3', '3:4', '16:9', '9:16', '21:9', 'adaptive'],
+    resolutions: ['480p', '720p'],
     defaultResolution: '720p',
     audioField: 'generate_audio',
   },

@@ -282,14 +282,14 @@ export const t2vModels = [
     "hasDuration": true
   },
   {
-    "id": "bytedance/seedance-1.5-pro",
-    "label": "Seedance 1.5 Pro",
+    "id": "bytedance/seedance-2-mini",
+    "label": "Seedance 2.0 Mini",
     "kind": "video",
     "api": "jobs",
-    "blurb": "Cinematic, with audio.",
+    "blurb": "Cheapest Seedance 2, with audio. Up to 720p.",
     "images": {
-      "param": "input_urls",
-      "max": 10,
+      "param": "reference_image_urls",
+      "max": 9,
       "required": false
     },
     "aspects": [
@@ -298,15 +298,19 @@ export const t2vModels = [
       "3:4",
       "16:9",
       "9:16",
-      "21:9"
+      "21:9",
+      "adaptive"
     ],
     "resolutions": [
       "480p",
-      "720p",
-      "1080p"
+      "720p"
     ],
     "resolutionDefault": "720p",
-    "hasDuration": true
+    "hasDuration": true,
+    "audios": {
+      "param": "reference_audio_urls",
+      "max": 3
+    }
   },
   {
     "id": "kling-3.0/video",

@@ -205,7 +205,7 @@ export class KieClient {
             return { ...info, family: 'jobs', model: 'kling/v2-1-pro' };
         }
         if (id.includes('seedance')) {
-            if (id.includes('v1.5')) return { ...info, family: 'jobs', model: 'bytedance/seedance-1.5-pro' };
+            if (id.includes('v1.5')) return { ...info, family: 'jobs', model: 'bytedance/seedance-2-mini' };
             if (id.includes('lite')) return { ...info, family: 'jobs', model: 'bytedance/seedance-2-fast' };
             return { ...info, family: 'jobs', model: 'bytedance/seedance-2' };
         }

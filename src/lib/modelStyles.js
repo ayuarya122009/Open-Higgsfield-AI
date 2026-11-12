@@ -33,7 +33,7 @@ const FIT = {
     'bytedance/seedance-2': { styles: ALL_VIDEO, tier: 'premium', refs: 9, voice: true, note: 'Up to 9 reference photos, takes your voiceover' },
     'kling-3.0/video': { styles: ['realistic', 'cinematic', 'ugc', 'product'], tier: 'premium', refs: 0, note: 'Sharp, natural motion' },
     'veo-3-1/fast': { alwaysSound: true, styles: ['realistic', 'cinematic', 'ugc', 'product'], tier: 'standard', refs: 3, refDuration: 8, note: 'Veo with up to 3 reference photos' },
-    'bytedance/seedance-1.5-pro': { styles: ['realistic', 'cinematic'], tier: 'standard', refs: 0, note: 'Cinematic, with audio' },
+    'bytedance/seedance-2-mini': { styles: ALL_VIDEO, tier: 'budget', refs: 9, voice: true, note: 'Cheapest Seedance, up to 9 reference photos, takes your voiceover' },
     'happyhorse-1-1/reference-to-video': { styles: ['ugc', 'product', 'cartoon'], tier: 'standard', refs: 5, note: 'Places a product or character from photos' },
     'kling/v3-turbo-text-to-video': { styles: ['cinematic', 'cartoon'], tier: 'standard', refs: 0, note: 'Quick, stylised' },
     'wan/2-5-text-to-video': { styles: ['cartoon'], tier: 'standard', refs: 0, note: 'Good for animation' },

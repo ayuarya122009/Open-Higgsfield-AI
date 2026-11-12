@@ -126,7 +126,7 @@ function mapImageId(id, edit) {
 }
 
 const VIDEO_MAP = [
-    ['seedance-v1.5', 'bytedance/seedance-1.5-pro'],
+    ['seedance-v1.5', 'bytedance/seedance-2-mini'],
     ['seedance', 'bytedance/seedance-2'],
     ['lite', 'bytedance/seedance-2-fast'],
     ['kling-2.1-standard', 'kling/v3-turbo-text-to-video'],

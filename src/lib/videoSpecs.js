@@ -30,11 +30,9 @@ export const VIDEO_SPECS = {
         durations: range(4, 15), durationDefault: 5, durationType: 'number',
         advanced: seedanceFields,
     },
-    'bytedance/seedance-1.5-pro': {
-        durations: [5, 10], durationDefault: 5, durationType: 'number',
-        advanced: [
-            { key: 'generate_audio', label: 'Generate audio', type: 'toggle', default: true },
-        ],
+    'bytedance/seedance-2-mini': {
+        durations: range(4, 15), durationDefault: 5, durationType: 'number',
+        advanced: seedanceFields,
     },
     'kling-3.0/video': {
         durations: range(3, 15), durationDefault: 5, durationType: 'string',
@@ -121,7 +119,7 @@ export function buildVideoParams(params) {
         }
         return { params: out, images: params.reference_urls.slice(), firstFrame: null };
     }
-    const isSeedance2 = params.model === 'bytedance/seedance-2' || params.model === 'bytedance/seedance-2-fast';
+    const isSeedance2 = params.model === 'bytedance/seedance-2' || params.model === 'bytedance/seedance-2-fast' || params.model === 'bytedance/seedance-2-mini';
     if (hasImage && isSeedance2) {
         // A voiceover (reference audio) cannot be combined with first-frame mode.
         const role = params.reference_audio_urls?.length ? 'reference' : (extra.image_role || 'first frame');

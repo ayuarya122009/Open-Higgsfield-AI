@@ -88,6 +88,8 @@ const KIE_FROM_PRICES = {
   'bytedance/seedance-2': [11.5, 'cr/sec', { '720p': 41, '1080p': 102 }],
   // Text/image-to-video rates; the lower 6.8 cr/s on kie.ai/pricing is for video input.
   'bytedance/seedance-2-fast': [11.7, 'cr/sec', { '480p': 11.7, '720p': 24.8 }],
+  // Cheapest Seedance 2 tier (kie.ai/pricing, checked 2026-11-12).
+  'bytedance/seedance-2-mini': [2.4, 'cr/sec'],
   'kling-3.0/video': [15.1, 'cr/sec'],
   'kling/v3-turbo-text-to-video': [20.2, 'cr/sec'],
   'wan/2-5-text-to-video': [60, 'cr/video'],
